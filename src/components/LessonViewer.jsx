@@ -3,14 +3,12 @@ import { useParams, useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import { getLessonByPath } from '../data/courseMap';
 import { useProgress } from '../hooks/useProgress';
-import { CheckCircle, ChevronRight, ChevronLeft } from 'lucide-react';
+import { CheckCircle, ChevronRight, Terminal, Shield } from 'lucide-react';
 
-// Using Vite's glob import to get all markdown content at build time
 const markdownModules = import.meta.glob('../content/**/*.md', { query: '?raw', import: 'default' });
 
 export const LessonViewer = () => {
   const { moduleId, lessonId } = useParams();
-  const navigate = useNavigate();
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(true);
   
@@ -31,12 +29,12 @@ export const LessonViewer = () => {
             const markdownContent = await importer();
             setContent(markdownContent);
           } else {
-            setContent('# Content not found\n\nThe requested lesson file could not be located.');
+            setContent('# [!] ERROR: SECTOR_NOT_FOUND\n\nThe requested data stream could not be localized.');
           }
         }
       } catch (error) {
         console.error('Error loading markdown:', error);
-        setContent('# Error\n\nFailed to load content.');
+        setContent('# [!] CRITICAL_FAILURE\n\nFailed to establish connection to data bank.');
       } finally {
         setLoading(false);
       }
@@ -46,7 +44,13 @@ export const LessonViewer = () => {
   }, [moduleId, lessonId, data]);
 
   if (!data || !data.lesson) {
-    return <div className="p-8">Lesson not found.</div>;
+    return (
+      <div className="p-20 flex flex-col items-center justify-center text-center">
+        <Shield size={64} className="text-red-500 mb-6 animate-pulse" />
+        <h1 className="text-2xl font-black text-white uppercase tracking-[0.5em]">Access Denied</h1>
+        <p className="text-gray-500 font-mono mt-4 text-xs uppercase">Unauthorized access attempt logged. Redirecting to home...</p>
+      </div>
+    );
   }
 
   const handleMarkComplete = () => {
@@ -54,43 +58,72 @@ export const LessonViewer = () => {
   };
 
   return (
-    <div className="flex-1 overflow-y-auto bg-white">
-      <div className="max-w-4xl mx-auto px-8 py-10">
+    <div className="flex-1 overflow-y-auto bg-dark-bg relative">
+      <div className="scanline"></div>
+      
+      <div className="max-w-4xl mx-auto px-10 py-12 relative z-10">
         
-        {/* Breadcrumb */}
-        <div className="flex items-center text-sm text-gray-500 mb-8">
-          <span>{data.module.title}</span>
-          <ChevronRight size={16} className="mx-2" />
-          <span className="text-gray-900 font-medium">{data.lesson.title}</span>
+        {/* Header / Breadcrumb */}
+        <div className="flex items-center gap-2 mb-10 border-b border-dark-border pb-6">
+          <div className="p-2 bg-neon-cyan/10 border border-neon-cyan/30 rounded">
+            <Terminal size={14} className="text-neon-cyan" />
+          </div>
+          <div className="flex items-center text-[10px] font-bold tracking-[0.2em] uppercase text-gray-500">
+            <span>{data.module.title}</span>
+            <ChevronRight size={12} className="mx-2 text-neon-purple" />
+            <span className="text-white">{data.lesson.title}</span>
+          </div>
         </div>
 
-        {/* Content */}
-        <div className="prose prose-blue max-w-none">
-          {loading ? (
-            <div className="animate-pulse space-y-4">
-              <div className="h-8 bg-gray-200 rounded w-1/3"></div>
-              <div className="h-4 bg-gray-200 rounded w-full"></div>
-              <div className="h-4 bg-gray-200 rounded w-5/6"></div>
-            </div>
-          ) : (
-            <ReactMarkdown>{content}</ReactMarkdown>
-          )}
-        </div>
+        {/* Content Area */}
+        <div className="bg-dark-surface/30 border border-dark-border/50 rounded-lg p-10 backdrop-blur-sm shadow-2xl">
+          <article className="prose prose-invert prose-neon max-w-none">
+            {loading ? (
+              <div className="animate-pulse space-y-8">
+                <div className="h-10 bg-dark-border rounded w-1/3"></div>
+                <div className="space-y-3">
+                  <div className="h-4 bg-dark-border rounded w-full"></div>
+                  <div className="h-4 bg-dark-border rounded w-5/6"></div>
+                  <div className="h-4 bg-dark-border rounded w-4/6"></div>
+                </div>
+                <div className="h-48 bg-dark-border rounded w-full"></div>
+              </div>
+            ) : (
+              <ReactMarkdown>{content}</ReactMarkdown>
+            )}
+          </article>
 
-        {/* Actions */}
-        <div className="mt-16 pt-8 border-t border-gray-100 flex items-center justify-between">
-          <button
-            onClick={handleMarkComplete}
-            disabled={completed}
-            className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-colors ${
-              completed
-                ? 'bg-green-50 text-green-700 cursor-default'
-                : 'bg-primary-600 text-white hover:bg-primary-700 shadow-sm'
-            }`}
-          >
-            <CheckCircle size={20} />
-            {completed ? 'Completed' : 'Mark as Complete'}
-          </button>
+          {/* Execution Block */}
+          <div className="mt-20 pt-10 border-t border-dark-border flex flex-col items-center">
+            <div className="text-[10px] font-mono text-gray-600 mb-4 uppercase tracking-[0.4em]">Finalize Instruction Block</div>
+            <button
+              onClick={handleMarkComplete}
+              disabled={completed}
+              className={`group relative flex items-center gap-3 px-10 py-4 font-black transition-all duration-500 uppercase tracking-[0.3em] text-xs ${
+                completed
+                  ? 'bg-transparent border border-neon-cyan/20 text-neon-cyan/50 cursor-default'
+                  : 'bg-transparent border border-neon-purple text-neon-purple hover:bg-neon-purple hover:text-white shadow-[0_0_20px_rgba(188,19,254,0.3)]'
+              }`}
+            >
+              <CheckCircle size={18} className={completed ? '' : 'group-hover:animate-spin'} />
+              {completed ? 'Success: Logged' : 'Execute: Complete'}
+              
+              {/* Corner decorative elements */}
+              {!completed && (
+                <>
+                  <div className="absolute -top-1 -left-1 w-2 h-2 border-t border-l border-neon-purple"></div>
+                  <div className="absolute -top-1 -right-1 w-2 h-2 border-t border-r border-neon-purple"></div>
+                  <div className="absolute -bottom-1 -left-1 w-2 h-2 border-b border-l border-neon-purple"></div>
+                  <div className="absolute -bottom-1 -right-1 w-2 h-2 border-b border-r border-neon-purple"></div>
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+        
+        {/* Footer info */}
+        <div className="mt-12 text-center opacity-20">
+          <div className="text-[8px] font-mono text-gray-500 uppercase tracking-widest">End of Stream // Authorized 3KPRO Personnel Only</div>
         </div>
         
       </div>
