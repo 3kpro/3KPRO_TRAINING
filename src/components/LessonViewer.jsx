@@ -1,11 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
+import { motion, AnimatePresence } from 'framer-motion';
 import { getLessonByPath } from '../data/courseMap';
 import { useProgress } from '../hooks/useProgress';
-import { CheckCircle, ChevronRight, Terminal, Shield } from 'lucide-react';
+import { CheckCircle, ChevronRight, Terminal, Shield, FlaskConical } from 'lucide-react';
+import { LabEnvironment } from './LabEnvironment';
 
 const markdownModules = import.meta.glob('../content/**/*.md', { query: '?raw', import: 'default' });
+
+const pageVariants = {
+  initial: { opacity: 0, x: 20 },
+  animate: { opacity: 1, x: 0, transition: { duration: 0.5, ease: "easeOut" } },
+  exit: { opacity: 0, x: -20, transition: { duration: 0.3 } }
+};
 
 export const LessonViewer = () => {
   const { moduleId, lessonId } = useParams();
@@ -58,7 +66,14 @@ export const LessonViewer = () => {
   };
 
   return (
-    <div className="flex-1 bg-dark-bg relative min-h-full">
+    <motion.div 
+      key={lessonPath}
+      variants={pageVariants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      className="flex-1 bg-dark-bg relative min-h-full"
+    >
       <div className="scanline"></div>
       
       <div className="max-w-4xl mx-auto px-10 py-12 relative z-10 pb-24">
@@ -76,7 +91,7 @@ export const LessonViewer = () => {
         </div>
 
         {/* Content Area */}
-        <div className="bg-dark-surface/30 border border-dark-border/50 rounded-lg p-10 backdrop-blur-sm shadow-2xl">
+        <div className="bg-dark-surface/30 border border-dark-border/50 rounded-lg p-10 backdrop-blur-sm shadow-2xl mb-12">
           <article className="prose prose-invert prose-neon max-w-none">
             {loading ? (
               <div className="animate-pulse space-y-8">
@@ -92,8 +107,25 @@ export const LessonViewer = () => {
               <ReactMarkdown>{content}</ReactMarkdown>
             )}
           </article>
+        </div>
 
-          {/* Execution Block */}
+        {/* Interactive Lab Section */}
+        {data.lesson.lab && (
+          <div className="mb-12">
+            <div className="flex items-center gap-3 mb-6">
+              <FlaskConical className="text-neon-cyan animate-bounce" size={20} />
+              <h3 className="text-lg font-black tracking-[0.2em] text-white uppercase">Hands-on Lab</h3>
+              <div className="h-[1px] flex-1 bg-dark-border ml-4"></div>
+            </div>
+            <LabEnvironment 
+              labData={data.lesson.lab} 
+              onComplete={handleMarkComplete} 
+            />
+          </div>
+        )}
+
+        {/* Manual Mark Complete (if no lab or lab done) */}
+        {(!data.lesson.lab || completed) && (
           <div className="mt-20 pt-10 border-t border-dark-border flex flex-col items-center">
             <div className="text-[10px] font-mono text-gray-600 mb-4 uppercase tracking-[0.4em]">Finalize Instruction Block</div>
             <button
@@ -101,14 +133,13 @@ export const LessonViewer = () => {
               disabled={completed}
               className={`group relative flex items-center gap-3 px-10 py-4 font-black transition-all duration-500 uppercase tracking-[0.3em] text-xs ${
                 completed
-                  ? 'bg-transparent border border-neon-cyan/20 text-neon-cyan/50 cursor-default'
+                  ? 'bg-transparent border border-neon-cyan/20 text-neon-cyan/50 cursor-default shadow-[0_0_10px_rgba(0,243,255,0.1)]'
                   : 'bg-transparent border border-neon-purple text-neon-purple hover:bg-neon-purple hover:text-white shadow-[0_0_20px_rgba(188,19,254,0.3)]'
               }`}
             >
               <CheckCircle size={18} className={completed ? '' : 'group-hover:animate-spin'} />
               {completed ? 'Success: Logged' : 'Execute: Complete'}
               
-              {/* Corner decorative elements */}
               {!completed && (
                 <>
                   <div className="absolute -top-1 -left-1 w-2 h-2 border-t border-l border-neon-purple"></div>
@@ -119,7 +150,7 @@ export const LessonViewer = () => {
               )}
             </button>
           </div>
-        </div>
+        )}
         
         {/* Footer info */}
         <div className="mt-12 text-center opacity-20">
@@ -127,6 +158,6 @@ export const LessonViewer = () => {
         </div>
         
       </div>
-    </div>
+    </motion.div>
   );
 };

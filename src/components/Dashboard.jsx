@@ -1,19 +1,43 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { courseMap } from '../data/courseMap';
 import { useProgress } from '../hooks/useProgress';
 import { ProgressBar } from './ProgressBar';
 import { Activity, Zap, Box } from 'lucide-react';
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
+};
 
 export const Dashboard = () => {
   const { getModuleProgress, getOverallProgress } = useProgress();
   const overallProgress = getOverallProgress(courseMap);
 
   return (
-    <div className="p-10 max-w-7xl mx-auto w-full relative z-10 pb-24">
+    <motion.div 
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
+      className="p-10 max-w-7xl mx-auto w-full relative z-10 pb-24"
+    >
       <div className="scanline"></div>
       
-      <div className="mb-12 glow-border p-8 border border-neon-cyan/20 bg-dark-surface/80 backdrop-blur-sm relative overflow-hidden">
+      <motion.div 
+        variants={cardVariants}
+        className="mb-12 glow-border p-8 border border-neon-cyan/20 bg-dark-surface/80 backdrop-blur-sm relative overflow-hidden"
+      >
         <div className="absolute top-0 right-0 p-4 opacity-10">
           <Activity size={120} className="text-neon-cyan" />
         </div>
@@ -36,19 +60,24 @@ export const Dashboard = () => {
             <ProgressBar progress={overallProgress} />
           </div>
         </div>
-      </div>
+      </motion.div>
 
-      <div className="flex items-center gap-3 mb-8">
+      <motion.div variants={cardVariants} className="flex items-center gap-3 mb-8">
         <Box className="text-neon-purple" size={20} />
         <h2 className="text-xl font-black tracking-[0.2em] text-white uppercase">Operational Modules</h2>
         <div className="h-[1px] flex-1 bg-dark-border ml-4"></div>
-      </div>
+      </motion.div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {courseMap.map((module) => {
           const progress = getModuleProgress(module);
           return (
-            <div key={module.id} className="glow-border bg-dark-surface/50 p-6 flex flex-col group transition-all duration-500 hover:bg-dark-surface/80 border border-dark-border hover:border-neon-purple/50">
+            <motion.div 
+              key={module.id}
+              variants={cardVariants}
+              whileHover={{ y: -5, transition: { duration: 0.2 } }}
+              className="glow-border bg-dark-surface/50 p-6 flex flex-col group transition-all duration-500 hover:bg-dark-surface/80 border border-dark-border hover:border-neon-purple/50"
+            >
               <div className="flex justify-between items-start mb-4">
                 <div className="text-[10px] text-gray-600 font-mono">MOD_ID: {module.id.toUpperCase()}</div>
                 <div className={`h-2 w-2 rounded-full shadow-[0_0_8px] ${progress > 0 ? 'bg-neon-cyan shadow-neon-cyan animate-pulse' : 'bg-gray-800 shadow-transparent'}`}></div>
@@ -71,10 +100,10 @@ export const Dashboard = () => {
                   {progress > 0 ? 'Resume Execution' : 'Initialize Module'}
                 </Link>
               </div>
-            </div>
+            </motion.div>
           );
         })}
       </div>
-    </div>
+    </motion.div>
   );
 };
