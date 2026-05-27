@@ -10,7 +10,7 @@ export const Dashboard = () => {
   const overallProgress = getOverallProgress(courseMap);
 
   return (
-    <div className="p-10 max-w-7xl mx-auto w-full relative z-10">
+    <div className="p-10 max-w-7xl mx-auto w-full relative z-10 pb-24">
       <div className="scanline"></div>
       
       <div className="mb-12 glow-border p-8 border border-neon-cyan/20 bg-dark-surface/80 backdrop-blur-sm relative overflow-hidden">

@@ -15,11 +15,11 @@ function App() {
 
         <Sidebar />
         
-        <main className="flex-1 flex flex-col h-full overflow-hidden relative border-l border-dark-border">
+        <main className="flex-1 flex flex-col h-full relative border-l border-dark-border overflow-y-auto">
           {/* Top Decorative bar */}
-          <div className="h-1 w-full bg-gradient-to-r from-neon-cyan via-neon-purple to-neon-cyan bg-[length:200%_100%] animate-[border-glow_4s_linear_infinite] opacity-50"></div>
+          <div className="h-1 w-full bg-gradient-to-r from-neon-cyan via-neon-purple to-neon-cyan bg-[length:200%_100%] animate-[border-glow_4s_linear_infinite] opacity-50 sticky top-0 z-20"></div>
           
-          <div className="flex-1 overflow-hidden relative">
+          <div className="flex-1 relative">
             <Routes>
               <Route path="/" element={<Dashboard />} />
               <Route path="/lesson/:moduleId/:lessonId" element={<LessonViewer />} />
@@ -27,7 +27,7 @@ function App() {
           </div>
           
           {/* Bottom decorative elements */}
-          <div className="absolute bottom-0 left-0 right-0 h-10 border-t border-dark-border bg-dark-surface/80 flex items-center px-6 justify-between text-[8px] text-gray-600 font-mono pointer-events-none">
+          <div className="sticky bottom-0 left-0 right-0 h-10 border-t border-dark-border bg-dark-surface/90 backdrop-blur-md flex items-center px-6 justify-between text-[8px] text-gray-600 font-mono pointer-events-none z-20">
             <div className="flex gap-4">
               <span className="flex items-center gap-1"><div className="w-1 h-1 bg-green-500 rounded-full animate-pulse"></div> SYSTEM_STATUS: OPERATIONAL</span>
               <span>UPLINK: ACTIVE_ENCRYPTED</span>

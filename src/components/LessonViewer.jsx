@@ -58,10 +58,10 @@ export const LessonViewer = () => {
   };
 
   return (
-    <div className="flex-1 overflow-y-auto bg-dark-bg relative">
+    <div className="flex-1 bg-dark-bg relative min-h-full">
       <div className="scanline"></div>
       
-      <div className="max-w-4xl mx-auto px-10 py-12 relative z-10">
+      <div className="max-w-4xl mx-auto px-10 py-12 relative z-10 pb-24">
         
         {/* Header / Breadcrumb */}
         <div className="flex items-center gap-2 mb-10 border-b border-dark-border pb-6">
